@@ -1,0 +1,53 @@
+{
+  "countries": [
+    {
+      "country_code": "US",
+      "country_name": "United States",
+      "region": "North America",
+      "population": 331900000,
+      "currency": "USD"
+    },
+    {
+      "country_code": "GB",
+      "country_name": "United Kingdom",
+      "region": "Europe",
+      "population": 67220000,
+      "currency": "GBP"
+    },
+    {
+      "country_code": "CA",
+      "country_name": "Canada",
+      "region": "North America",
+      "population": 38250000,
+      "currency": "CAD"
+    },
+    {
+      "country_code": "DE",
+      "country_name": "Germany",
+      "region": "Europe",
+      "population": 83240000,
+      "currency": "EUR"
+    },
+    {
+      "country_code": "FR",
+      "country_name": "France",
+      "region": "Europe",
+      "population": 67390000,
+      "currency": "EUR"
+    },
+    {
+      "country_code": "JP",
+      "country_name": "Japan",
+      "region": "Asia",
+      "population": 125800000,
+      "currency": "JPY"
+    },
+    {
+      "country_code": "AU",
+      "country_name": "Australia",
+      "region": "Oceania",
+      "population": 25690000,
+      "currency": "AUD"
+    }
+  ]
+}

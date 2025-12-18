@@ -1,0 +1,253 @@
+Metadata-Version: 2.4
+Name: ds-star
+Version: 0.1.0
+Summary: DS-STAR: Data Science Agent via Iterative Planning and Verification
+Author: DS-STAR Contributors
+License: MIT
+Project-URL: Homepage, https://github.com/ds-star/ds-star
+Project-URL: Documentation, https://github.com/ds-star/ds-star#readme
+Project-URL: Repository, https://github.com/ds-star/ds-star
+Keywords: data-science,agent,llm,openai,automation
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: openai>=1.0.0
+Requires-Dist: pandas>=2.0
+Requires-Dist: openpyxl>=3.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.21; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Provides-Extra: ml
+Requires-Dist: numpy>=1.24; extra == "ml"
+Requires-Dist: scipy>=1.10; extra == "ml"
+Requires-Dist: scikit-learn>=1.3; extra == "ml"
+Requires-Dist: matplotlib>=3.7; extra == "ml"
+Requires-Dist: seaborn>=0.12; extra == "ml"
+
+# DS-STAR
+
+**Data Science Agent via Iterative Planning and Verification**
+
+DS-STAR is a Python implementation of the DS-STAR framework from the [research paper](https://arxiv.org/abs/2509.21825) by Google Cloud and KAIST. It's a data science agent that transforms raw data into actionable insights through iterative planning and verification.
+
+## Features
+
+- **Multi-format Data Support**: Automatically analyzes CSV, JSON, Excel, Parquet, Markdown, and text files
+- **Iterative Planning**: Generates step-by-step analysis plans that are refined based on execution results
+- **LLM-based Verification**: Uses an LLM judge to verify if the plan sufficiently answers the query
+- **Self-debugging**: Automatically fixes code errors using traceback information
+- **Backtracking**: Can identify and correct wrong steps in the plan
+
+## Installation
+
+```bash
+pip install ds-star
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/your-repo/ds-star.git
+cd ds-star
+pip install -e .
+```
+
+## Quick Start
+
+```python
+import asyncio
+from ds_star import DSStarSession, OpenAIProvider, DSStarConfig
+
+async def main():
+    # Initialize the LLM provider
+    provider = OpenAIProvider(
+        api_key="sk-...",  # Or set OPENAI_API_KEY env var
+        model="gpt-4-turbo-preview"
+    )
+
+    # Create a session with optional configuration
+    config = DSStarConfig(
+        max_iterations=20,
+        max_debug_attempts=3,
+    )
+    session = DSStarSession(provider=provider, config=config)
+
+    # Run DS-STAR on your data science task
+    answer = await session.run(
+        query="What is the average transaction amount by country?",
+        data_files=["./data/transactions.csv", "./data/countries.json"]
+    )
+
+    print(f"Answer: {answer}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Architecture
+
+DS-STAR uses a multi-agent architecture with 7 specialized agents:
+
+| Agent | Purpose |
+|-------|---------|
+| **Analyzer** | Extracts metadata and schema from data files |
+| **Planner** | Generates the next step in the analysis plan |
+| **Coder** | Implements plan steps as executable Python code |
+| **Verifier** | Checks if the current plan sufficiently answers the query |
+| **Router** | Decides to add new steps or backtrack to fix errors |
+| **Debugger** | Fixes code that failed during execution |
+| **Finalizer** | Formats the final output |
+
+### Algorithm
+
+1. **Analyze Files**: Extract metadata from all data files
+2. **Generate Initial Step**: Create the first plan step
+3. **Iterative Loop** (up to `max_iterations`):
+   - Generate code implementing all steps
+   - Execute code (with automatic debugging on failure)
+   - Verify if result is sufficient
+   - If sufficient: return answer
+   - If insufficient: route to add step or backtrack
+4. **Finalize**: Format and return the final answer
+
+## Configuration
+
+```python
+from ds_star import DSStarConfig
+
+config = DSStarConfig(
+    # Iteration limits
+    max_iterations=20,        # Max planning iterations
+    max_debug_attempts=3,     # Max debug attempts per execution
+
+    # Execution settings
+    execution_timeout_seconds=60.0,
+    max_output_length=10000,
+
+    # LLM settings
+    temperature=0.0,
+    max_tokens=4096,
+
+    # Output formatting
+    output_format="round to 2 decimal places",
+
+    # Logging
+    log_level="INFO",
+)
+```
+
+## Advanced Usage
+
+### Progress Callback
+
+Monitor progress during execution:
+
+```python
+async def on_step(state):
+    print(f"Iteration {state.iteration}: {len(state.current_plan)} steps")
+    if state.last_execution_result:
+        print(f"  Success: {state.last_execution_result.success}")
+
+answer = await session.run(
+    query="Analyze sales trends",
+    data_files=["./sales.csv"],
+    on_step=on_step
+)
+```
+
+### Custom LLM Provider
+
+Implement the `LLMProvider` protocol for other LLMs:
+
+```python
+from ds_star.providers.base import LLMProvider, Message, LLMResponse
+
+class CustomProvider(LLMProvider):
+    async def complete(
+        self,
+        messages: list[Message],
+        temperature: float = 0.0,
+        max_tokens: int = 4096,
+    ) -> LLMResponse:
+        # Your implementation here
+        ...
+
+    async def complete_stream(self, messages, temperature=0.0, max_tokens=4096):
+        # Optional streaming implementation
+        ...
+
+    async def embed(self, text: str) -> list[float]:
+        # Optional embedding implementation
+        ...
+```
+
+### Accessing Full State
+
+Get complete execution state for debugging:
+
+```python
+state = await session.run_with_state(
+    query="What patterns exist in the data?",
+    data_files=["./data/"]
+)
+
+# Inspect all artifacts
+print("File Descriptions:", state.file_descriptions)
+print("Plan Steps:", state.current_plan)
+print("Generated Code:", state.current_code)
+print("Execution Results:", state.execution_results)
+```
+
+## Supported File Formats
+
+- **Tabular**: CSV, Excel (xlsx, xls), Parquet
+- **Structured**: JSON, YAML, XML
+- **Text**: Markdown, plain text
+
+## Requirements
+
+- Python 3.11+
+- OpenAI API key (for default provider)
+
+## Development
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Type checking
+mypy ds_star
+
+# Linting
+ruff check ds_star
+```
+
+## Citation
+
+If you use DS-STAR in your research, please cite the original paper:
+
+```bibtex
+@article{nam2025dsstar,
+  title={DS-STAR: Data Science Agent via Iterative Planning and Verification},
+  author={Nam, Jaehyun and Yoon, Jinsung and Chen, Jiefeng and Pfister, Tomas},
+  journal={arXiv preprint arXiv:2509.21825},
+  year={2025}
+}
+```
+
+## License
+
+MIT License

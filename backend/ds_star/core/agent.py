@@ -30,7 +30,7 @@ class BaseAgent(ABC, Generic[InputT, OutputT]):
         self,
         provider: LLMProvider,
         logger: logging.Logger | None = None,
-        temperature: float = 1.0,
+        temperature: float = 0.0,
         max_tokens: int = 4096,
     ):
         """Initialize the agent.

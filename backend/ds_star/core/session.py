@@ -90,7 +90,7 @@ class DSStarSession:
         Returns:
             Final answer string
         """
-        self.logger.info(f"Starting DS-STAR session for query: {query[:100]}...")
+        self.logger.info(f"Starting DS-STAR session for query: {query}...")
 
         # Expand directories and filter files
         all_files = self._expand_file_paths(data_files)
@@ -129,7 +129,7 @@ class DSStarSession:
 
             # Verify sufficiency
             verification, reasoning = await self.verifier.verify(state)
-            self.logger.info(f"Verification: {verification.value} - {reasoning[:100]}")
+            self.logger.info(f"Verification: {verification.value} - {reasoning}")
 
             if verification == VerificationResult.SUFFICIENT:
                 state.is_complete = True

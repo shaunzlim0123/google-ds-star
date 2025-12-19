@@ -15,7 +15,7 @@ class DSStarConfig:
 
     # Code execution
     execution_timeout_seconds: float = 60.0
-    max_output_length: int = 10000
+    max_output_length: int = 100000  # Increased from 10000 to 100000 for comprehensive results
 
     # LLM settings
     # Note: gpt-5-nano only supports temperature=1.0 (not configurable)
@@ -58,7 +58,7 @@ class ExecutorConfig:
 
     timeout_seconds: float = 60.0
     max_memory_mb: int = 1024
-    max_output_length: int = 10000
+    max_output_length: int = 100000  # Increased from 10000 to 100000 for comprehensive results
     working_directory: str | None = None
 
     # Safety settings

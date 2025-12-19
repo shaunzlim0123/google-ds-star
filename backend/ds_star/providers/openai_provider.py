@@ -16,14 +16,14 @@ class OpenAIProvider:
     def __init__(
         self,
         api_key: str | None = None,
-        model: str = "gpt-5-nano",
+        model: str = "gpt-5-mini",
         embedding_model: str = "text-embedding-3-small",
     ):
         """Initialize OpenAI provider.
 
         Args:
             api_key: OpenAI API key. If not provided, uses OPENAI_API_KEY env var.
-            model: Model to use for completions (default: gpt-5-nano)
+            model: Model to use for completions (default: gpt-5-mini)
             embedding_model: Model to use for embeddings (default: text-embedding-3-small)
         """
         self.api_key = api_key or os.environ.get("OPENAI_API_KEY")

@@ -105,8 +105,8 @@ Guidelines:
 1. Write clean, well-commented Python code
 2. Use pandas for data manipulation
 3. Handle potential errors gracefully
-4. Print intermediate results for verification
-5. The final result should be printed clearly
+4. DO NOT print intermediate results or debugging information
+5. ONLY print the final result that directly answers the user's query
 
 Code structure:
 ```python
@@ -125,7 +125,7 @@ pd.set_option('display.max_colwidth', None)
 # Step 2: [description]
 # implementation...
 
-# Final output - print complete result
+# Final output - print ONLY the result that answers the query
 print("\\n" + "="*50)
 print("FINAL RESULT:")
 print("="*50)
@@ -139,7 +139,8 @@ Important:
 - Include all necessary imports
 - Make the code self-contained and runnable
 - Configure pandas display options to show ALL rows without truncation
-- Print the final answer clearly with "FINAL RESULT:" prefix and separators
+- DO NOT print intermediate DataFrames, previews, dtypes, or debugging information
+- ONLY print the final answer clearly with "FINAL RESULT:" prefix and separators
 - The result must be complete, not truncated"""
 
 CODER_USER = """User Query: {query}

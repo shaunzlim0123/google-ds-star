@@ -11,8 +11,45 @@ DS-STAR is a Python implementation of the DS-STAR framework from the [research p
 - **LLM-based Verification**: Uses an LLM judge to verify if the plan sufficiently answers the query
 - **Self-debugging**: Automatically fixes code errors using traceback information
 - **Backtracking**: Can identify and correct wrong steps in the plan
+- **Real-time Progress**: Watch analysis steps as they happen
+- **Code Viewer**: See the generated Python code
 
-## Installation
+## Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- OpenAI API key
+
+## Quick Start
+
+### Option 1: Automated Setup (Recommended)
+
+```bash
+# 1. Run the automated setup script
+./setup_frontend.sh
+
+# 2. Set your OpenAI API key
+export OPENAI_API_KEY="sk-your-openai-api-key-here"
+```
+
+### Option 2: Manual Setup
+
+**Backend:**
+```bash
+cd backend
+pip install -r requirements.txt
+export OPENAI_API_KEY="sk-your-key"
+python server.py
+```
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Option 3: Install as Package
 
 ```bash
 pip install ds-star
@@ -26,7 +63,79 @@ cd ds-star
 pip install -e .
 ```
 
-## Quick Start
+## Running the Application
+
+### Terminal 1: Start Backend
+
+```bash
+./start_backend.sh
+```
+
+You should see:
+```
+Starting DS-STAR Backend Server...
+Server will run on http://localhost:8000
+
+INFO:     Started server process
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
+
+### Terminal 2: Start Frontend
+
+```bash
+./start_frontend.sh
+```
+
+You should see:
+```
+Starting DS-STAR Frontend...
+Frontend will run on http://localhost:3000
+
+  VITE v5.0.11  ready in 523 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+```
+
+### Open in Browser
+
+Navigate to: **http://localhost:3000**
+
+## Using the Application
+
+### 1. Upload Files
+
+- Click the upload area or drag files
+- Supported: CSV, JSON, Excel, Parquet, etc.
+- Example files: Use `data/transactions.csv` and `data/countries.json`
+
+### 2. Enter Query
+
+Type your question, for example:
+```
+What product had made the most money for each country?
+```
+
+### 3. Execute
+
+- Click **"Execute Query"**
+- Watch the real-time progress
+- See the final answer when complete
+
+## Example Queries
+
+Try these with the sample data in `data/`:
+
+```
+1. What product had made the most money for each country?
+2. What is the total revenue by product category?
+3. Which country has the highest average transaction amount?
+4. Show me the distribution of transactions across countries and products
+```
+
+## Programmatic Usage
 
 ```python
 import asyncio
@@ -172,16 +281,80 @@ print("Generated Code:", state.current_code)
 print("Execution Results:", state.execution_results)
 ```
 
+## Project Structure
+
+```
+google-ds-star/
+├── backend/          # FastAPI server
+│   ├── server.py
+│   └── requirements.txt
+├── frontend/         # React app
+│   ├── src/
+│   └── package.json
+└── data/            # Sample data files
+    ├── transactions.csv
+    └── countries.json
+```
+
 ## Supported File Formats
 
 - **Tabular**: CSV, Excel (xlsx, xls), Parquet
 - **Structured**: JSON, YAML, XML
 - **Text**: Markdown, plain text
 
-## Requirements
+## Troubleshooting
 
-- Python 3.11+
-- OpenAI API key (for default provider)
+### Backend won't start
+
+**Problem**: `OPENAI_API_KEY environment variable not set`
+
+**Solution**:
+```bash
+export OPENAI_API_KEY="sk-your-key"
+```
+
+### Frontend shows "Disconnected"
+
+**Solution**:
+1. Make sure backend is running on port 8000
+2. Check backend terminal for errors
+3. Refresh the browser page
+
+### Port already in use
+
+**Solution**:
+```bash
+# Kill process on port 8000 (backend)
+lsof -ti:8000 | xargs kill -9
+
+# Kill process on port 3000 (frontend)
+lsof -ti:3000 | xargs kill -9
+```
+
+## Quick Commands Cheat Sheet
+
+```bash
+# Setup (one-time)
+./setup_frontend.sh
+
+# Set API key (each session)
+export OPENAI_API_KEY="sk-your-key"
+
+# Start backend
+./start_backend.sh
+
+# Start frontend (new terminal)
+./start_frontend.sh
+
+# Stop servers
+Ctrl+C (in each terminal)
+
+# Rebuild frontend
+cd frontend && npm run build
+
+# Run linter
+cd frontend && npm run lint
+```
 
 ## Development
 
@@ -198,6 +371,15 @@ mypy ds_star
 # Linting
 ruff check ds_star
 ```
+
+## Success Checklist
+
+- [ ] Backend running on http://localhost:8000
+- [ ] Frontend running on http://localhost:3000
+- [ ] Green "Connected to server" indicator visible
+- [ ] Files upload successfully
+- [ ] Query executes and shows progress
+- [ ] Final answer appears
 
 ## Citation
 
